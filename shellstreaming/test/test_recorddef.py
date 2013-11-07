@@ -5,6 +5,12 @@ from shellstreaming.recorddef import RecordDef
 from shellstreaming.type import Type
 
 
+def assert_error_message(error_class, message, func, *args, **kwargs):
+    with assert_raises(error_class) as context:
+        func(*args, **kwargs)
+    eq_(str(context.exception), message)
+
+
 def test_recorddef_usage():
     """Shows how to use RecordDef class."""
     rdef = RecordDef([
@@ -19,38 +25,45 @@ def test_recorddef_usage():
     eq_(rdef[0].type, Type('STRING'))
 
 
-@raises(RecordDefError)
-def test_recorddef_required_key_lacks():
-    rdef = RecordDef([
-        {
-        },  # at least 'name' is required
-    ])
+def test_recorddef_required_key_not_present_raises_error():
+    assert_error_message(RecordDefError,
+                         "In column 0: Key 'name' is required",
+                         RecordDef,
+                         [
+                            {}
+                         ])
 
 
-@raises(RecordDefError)
-def test_recorddef_unsupported_key():
-    rdef = RecordDef([
-        {
-            'name': 'col0',
-            'xyz' : 'yeah',
-        },
-    ])
+def test_recorddef_unsupported_key_raises_error():
+    assert_error_message(RecordDefError,
+                         "In column 0: Key 'xyz' is invalid",
+                         RecordDef,
+                         [
+                             {
+                                 'name': 'col0',
+                                 'xyz' : 'yeah',
+                             },
+                         ])
 
 
-@raises(RecordDefError)
-def test_recorddef_name_invalid():
-    rdef = RecordDef([
-        {
-            'name': 'invalid-col',
-        },
-    ])
+def test_recorddef_invalid_name_value_raises_error():
+    assert_error_message(RecordDefError,
+                         "In column 0: 'invalid-col' is invalid for 'name'",
+                         RecordDef,
+                         [
+                             {
+                                 'name': 'invalid-col',
+                             },
+                         ])
 
 
-@raises(RecordDefError)
 def test_recorddef_type_invalid():
-    rdef = RecordDef([
-        {
-            'name': 'col0',
-            'type': 'SUPER_TYPE'
-        },
-    ])
+    assert_error_message(RecordDefError,
+                         "In column 0: 'SUPER_TYPE' is invalid for 'type'",
+                         RecordDef,
+                         [
+                             {
+                                 'name': 'col0',
+                                 'type': 'SUPER_TYPE'
+                             },
+                         ])
