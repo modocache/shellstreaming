@@ -10,14 +10,17 @@ def test_type_usage():
 
     eq_(Type.equivalent_ss_type(-123), Type('INT'))
 
-
-@raises(UnsupportedTypeError)
 def test_unsupported_type_init():
-    Type('UNSUPPORTED_TYPE')
+    with assert_raises(UnsupportedTypeError) as context:
+        Type('UNSUPPORTED_TYPE')
+    eq_(str(context.exception),
+        'Type UNSUPPORTED_TYPE is not supported as shellstreaming type')
 
-
-@raises(UnsupportedTypeError)
 def test_unsupported_type_equivalent():
     class X:
         pass
-    Type.equivalent_ss_type(X())
+
+    with assert_raises(UnsupportedTypeError) as context:
+        Type.equivalent_ss_type(X())
+    eq_(str(context.exception),
+        "builtin type <type 'instance'> is not convertible to shellstreaming type")
