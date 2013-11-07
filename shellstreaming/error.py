@@ -14,11 +14,7 @@ class BaseError(Exception):
 
 class UnsupportedTypeError(BaseError):
     """An exception raised when unsupported type is used."""
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
+    pass
 
 
 class ColumnDefError(BaseError):
